@@ -2,16 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="458498e7-867b-433b-a8f0-a165bcd9c67c" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/Workspace/pkg/myLib/MyLib.go" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/Workspace/pkg/serverClient/Common.go" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/Workspace/src/client/ClientDriver.go" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/Workspace/src/server/ServerDriver.go" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
-      <change beforePath="$PROJECT_DIR$/Workspace/pkg/myLib/myLib.go" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/Workspace/src/client/client.go" afterPath="$PROJECT_DIR$/Workspace/pkg/serverClient/Client.go" />
-      <change beforePath="$PROJECT_DIR$/Workspace/src/server/server" afterPath="" />
-      <change beforePath="$PROJECT_DIR$/Workspace/src/server/server.go" afterPath="$PROJECT_DIR$/Workspace/pkg/serverClient/Server.go" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -108,8 +100,8 @@
       <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="312">
-              <caret line="13" column="30" lean-forward="false" selection-start-line="13" selection-start-column="30" selection-end-line="13" selection-end-column="30" />
+            <state relative-caret-position="168">
+              <caret line="7" column="36" lean-forward="false" selection-start-line="7" selection-start-column="36" selection-end-line="7" selection-end-column="36" />
               <folding />
             </state>
           </provider>
@@ -415,7 +407,8 @@
     <MESSAGE value="readme update" />
     <MESSAGE value="static windows size replaced previous version" />
     <MESSAGE value="http client struct created." />
-    <option name="LAST_COMMIT_MESSAGE" value="http client struct created." />
+    <MESSAGE value="client and server completed logically." />
+    <option name="LAST_COMMIT_MESSAGE" value="client and server completed logically." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -901,8 +894,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="312">
-          <caret line="13" column="30" lean-forward="false" selection-start-line="13" selection-start-column="30" selection-end-line="13" selection-end-column="30" />
+        <state relative-caret-position="168">
+          <caret line="7" column="36" lean-forward="false" selection-start-line="7" selection-start-column="36" selection-end-line="7" selection-end-column="36" />
           <folding />
         </state>
       </provider>
