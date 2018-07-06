@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="458498e7-867b-433b-a8f0-a165bcd9c67c" name="Default" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
+      <change beforePath="$PROJECT_DIR$/Workspace/src/client/ClientDriver.go" afterPath="$PROJECT_DIR$/Workspace/src/client/ClientDriver.go" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -85,24 +85,24 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="ClientDriver.go" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Workspace/src/client/ClientDriver.go">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="308">
-              <caret line="19" column="55" lean-forward="false" selection-start-line="19" selection-start-column="55" selection-end-line="19" selection-end-column="55" />
-              <folding>
-                <element signature="e#14#84#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="README.md" pinned="false" current-in-tab="true">
+      <file leaf-file-name="README.md" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/README.md">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="168">
               <caret line="7" column="36" lean-forward="false" selection-start-line="7" selection-start-column="36" selection-end-line="7" selection-end-column="36" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ClientDriver.go" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/Workspace/src/client/ClientDriver.go">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="92">
+              <caret line="10" column="0" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+              <folding>
+                <element signature="e#14#84#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -207,8 +207,8 @@
         <option value="$PROJECT_DIR$/Workspace/src/server/ServerDriver.go" />
         <option value="$PROJECT_DIR$/Workspace/pkg/serverClient/Server.go" />
         <option value="$PROJECT_DIR$/Workspace/pkg/serverClient/Client.go" />
-        <option value="$PROJECT_DIR$/Workspace/src/client/ClientDriver.go" />
         <option value="$PROJECT_DIR$/README.md" />
+        <option value="$PROJECT_DIR$/Workspace/src/client/ClientDriver.go" />
       </list>
     </option>
   </component>
@@ -408,7 +408,8 @@
     <MESSAGE value="static windows size replaced previous version" />
     <MESSAGE value="http client struct created." />
     <MESSAGE value="client and server completed logically." />
-    <option name="LAST_COMMIT_MESSAGE" value="client and server completed logically." />
+    <MESSAGE value="readme updated" />
+    <option name="LAST_COMMIT_MESSAGE" value="readme updated" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -851,17 +852,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Workspace/pkg/serverClient/Server.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="480">
-          <caret line="58" column="29" lean-forward="false" selection-start-line="58" selection-start-column="29" selection-end-line="58" selection-end-column="29" />
-          <folding>
-            <element signature="e#22#173#0" expanded="true" />
-            <element signature="n#!!block;n#trimNullString#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Workspace/src/server/ServerDriver.go">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="336">
@@ -882,21 +872,32 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Workspace/src/client/ClientDriver.go">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="308">
-          <caret line="19" column="55" lean-forward="false" selection-start-line="19" selection-start-column="55" selection-end-line="19" selection-end-column="55" />
-          <folding>
-            <element signature="e#14#84#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/README.md">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="168">
           <caret line="7" column="36" lean-forward="false" selection-start-line="7" selection-start-column="36" selection-end-line="7" selection-end-column="36" />
           <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Workspace/pkg/serverClient/Server.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="480">
+          <caret line="58" column="29" lean-forward="false" selection-start-line="58" selection-start-column="29" selection-end-line="58" selection-end-column="29" />
+          <folding>
+            <element signature="e#22#173#0" expanded="true" />
+            <element signature="n#!!block;n#trimNullString#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Workspace/src/client/ClientDriver.go">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="92">
+          <caret line="10" column="0" lean-forward="false" selection-start-line="10" selection-start-column="0" selection-end-line="10" selection-end-column="0" />
+          <folding>
+            <element signature="e#14#84#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>

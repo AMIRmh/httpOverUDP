@@ -7,8 +7,7 @@ import (
 )
 
 const (
-	Host = "5.152.206.41"
-	//Host = "127.0.0.1"
+	Host = "127.0.0.1"
 	UDPPort = "1313"
 	TCPPort = "80"
 	NumberOfThreads = 5
