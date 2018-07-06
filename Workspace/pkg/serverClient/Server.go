@@ -1,21 +1,20 @@
-package main
+package serverClient
 
 import (
 	"fmt"
 	"net"
 	"strconv"
-	"io/ioutil"
 	"encoding/binary"
 	"udp-go/Workspace/pkg/myLib"
+	"net/http"
+	"io/ioutil"
+	"encoding/json"
+	"github.com/miekg/dns"
+
 )
 
 const (
-	hostServer = "localhost"
-	DefaultId = "1234567890"
-	PortServer = ":1313"
-	DataSize = 1500
 	IdSize = 10
-	PartSize = 4
 )
 
 var (
@@ -25,26 +24,20 @@ var (
 	arr = make([]string, 0)
 	clientFiles =  make(map[string][][]byte)
 	clientSizes = make(map[string]int)
+	Messages = make(chan Client)
+	UDPPortServer, TCPPortServer string
 )
 
-type client struct {
-	clientFiles map[string][][]byte
-	clientSizes map[string]int
-}
-
-func main() {
-	initServer()
-	readUDP()
-}
-
-func Packet() {
-
+type Client struct {
+	ResponsePath *net.UDPAddr
+	Id string
+	Message []byte
 }
 
 
-
-func initServer() {
-	udpAddr , err := net.ResolveUDPAddr("udp4", PortServer)
+func InitServer(UDPPort, TCPPort string) {
+	UDPPortServer = UDPPort
+	udpAddr , err := net.ResolveUDPAddr("udp4", ":" + UDPPortServer)
 
 	if err != nil {
 		fmt.Println(err)
@@ -56,9 +49,53 @@ func initServer() {
 		fmt.Println(err)
 		return
 	}
+
+
+	TCPPortServer = TCPPort
+	server := http.NewServeMux()
+	server.HandleFunc("/", handleDNSQuery)
+	go func () {
+		err := http.ListenAndServe(":" + TCPPortServer, server)
+		myLib.CheckError(err)
+	}()
 }
 
-func readUDP() {
+func handleDNSQuery(res http.ResponseWriter, req *http.Request) {
+	body, err := ioutil.ReadAll(req.Body)
+	myLib.CheckError(err)
+	var raw map[string]interface{}
+	json.Unmarshal(body, &raw)
+	target := raw["target"].(string)
+	typeOfQuery := raw["type"].(string)
+
+
+	if typeOfQuery == "CNAME" {
+		cname, err := net.LookupCNAME(target)
+		myLib.CheckError(err)
+		res.Write([]byte(cname))
+	} else if typeOfQuery == "DNS" {
+		ips, auth := queryDNS(target)
+		resMap := map[string]string{"ips" : ips, "auth" : strconv.FormatBool(auth)}
+		result, err := json.Marshal(resMap)
+		myLib.CheckError(err)
+		res.Write([]byte(result))
+	}
+}
+
+func queryDNS(target string) (string, bool){
+	m := new(dns.Msg)
+	m.SetQuestion(dns.Fqdn(target), dns.TypeA)
+
+	ips := ""
+	in, err := dns.Exchange(m, "8.8.8.8:53")
+	myLib.CheckError(err)
+	for _, t := range in.Answer {
+		ips += t.(*dns.A).A.String() + ", "
+	}
+	return ips, in.Authoritative
+}
+
+func ReadUDP() {
 	buf := make([]byte, DataSize+PartSize+IdSize)
 	for {
 		_, remoteAddr, _ := pc.ReadFromUDP(buf[0:])
@@ -98,7 +135,11 @@ func specialMessageHandler(data, id, partBuffer []byte, remoteAddr *net.UDPAddr)
 		for _,d := range clientFiles[string(id)] {
 			writeToFileArray = append(writeToFileArray, d...)
 		}
-		ioutil.WriteFile("./a", writeToFileArray[0:clientSizes[string(id)]], 0777)
+		Messages <- Client{
+			ResponsePath: remoteAddr,
+			Id: string(id),
+			Message: writeToFileArray,
+			}
 		delete(clientFiles, string(id))
 		delete(clientSizes, string(id))
 		pc.WriteToUDP(partBuffer, remoteAddr)

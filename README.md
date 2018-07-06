@@ -4,9 +4,11 @@ This project sends http packets in udp and udp packets in tcp.
 
 ## Features
 * UDP is reliable using [this project](https://github.com/AMIRmh/udp-go)
+* supports 302 forward http response status
+* sends HTTP request in UDP
+* sends DNS query in TCP protocol
 
 ## To Do Features
-* supports 302 forward http response status
-* sends DNS query in TCP protocol
-* sends HTTP request in UDP
-
+* command line interface
+* support cache
+* receive udp packets over NAT

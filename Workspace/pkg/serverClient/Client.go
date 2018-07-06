@@ -1,4 +1,4 @@
-package client
+package serverClient
 
 import (
 	"fmt"
@@ -7,28 +7,34 @@ import (
 	"sync"
 	"encoding/binary"
 	"time"
-	"udp-go/Workspace/pkg/myLib"
+	"httpOverUDP/Workspace/pkg/myLib"
+	"net/http"
+	"bytes"
+	"io/ioutil"
 )
 
 const (
-	DataSize = 1500
-	PartSize = 4
-	DefaultId = "1234567890"
 	ReadTimeOut = 500 * time.Millisecond
 )
 
 var (
-	httpClient = HTTPCleint{
+	udpClient = UDPClient{
 		specialMessage: 4294967295,
 		id: make([]byte, 10),
 	}
+	tcpClient = TCPClient{}
 )
 
-type HTTPCleint struct {
+type UDPClient struct {
 	specialMessage int
 	udpAddr *net.UDPAddr
+	udpListen *net.UDPConn
 	windowsSize int
 	id []byte
+}
+
+type TCPClient struct {
+	tcpAddr *net.TCPAddr
 }
 
 type Packet struct {
@@ -36,14 +42,29 @@ type Packet struct {
 	data []byte
 }
 
-func InitClient(host ,port string) {
-	httpClient.id = []byte(DefaultId)
-	service := host + ":" + port
-	httpClient.udpAddr, _ = net.ResolveUDPAddr("udp4", service)
-	httpClient.getId()
+func InitClient(host ,UDPPort, TCPPort string) *net.UDPConn {
+	udpClient.id = []byte(DefaultId)
+	service := host + ":" + UDPPort
+	udpClient.udpAddr, _ = net.ResolveUDPAddr("udp4", service)
+	udpClient.udpListen = udpClient.createConnection(nil)
+	udpClient.getId()
+
+	service = host + ":" + TCPPort
+	tcpClient.tcpAddr, _ = net.ResolveTCPAddr("tcp", service)
+	return udpClient.udpListen
 }
 
-func (hc HTTPCleint) getId() {
+func (tc TCPClient) sendDNSQuery(data []byte) []byte {
+	r := bytes.NewReader(data)
+	resp, err := http.Post("http://" + tc.tcpAddr.String() + "/", "application/json", r)
+	myLib.CheckError(err)
+	defer resp.Body.Close()
+
+	body, err := ioutil.ReadAll(resp.Body)
+	return body
+}
+
+func (hc UDPClient) getId() {
 	go hc.fillId()
 	for {
 		if string(hc.id) == DefaultId {
@@ -55,31 +76,33 @@ func (hc HTTPCleint) getId() {
 	}
 }
 
-func (hc HTTPCleint) fillId() {
-	connection := hc.createConnection()
-	hc.asyncSendUDP(httpClient.id,httpClient.specialMessage, connection)
+func (hc UDPClient) fillId() {
+	connection := hc.createConnection(nil)
+	hc.asyncSendUDP(udpClient.id,udpClient.specialMessage, connection)
 	connection.SetReadDeadline(time.Now().Add(ReadTimeOut))
-	connection.Read(httpClient.id)
-	if string(httpClient.id) == DefaultId {
+	connection.Read(udpClient.id)
+	if string(udpClient.id) == DefaultId {
 		hc.fillId()
 	}
 }
 
 func Send(data []byte, typeOfRequest string, nth int) {
-	if typeOfRequest == "DNS" {
-
-	} else if typeOfRequest == "HTTP" {
-		httpClient.windowsSize = nth
+	if typeOfRequest == "TCP" {
+		result := tcpClient.sendDNSQuery(data)
+		fmt.Println(string(result))
+		Messages <- Client{Message: result, Id: "", ResponsePath: nil}
+	} else if typeOfRequest == "UDP" {
+		udpClient.windowsSize = nth
 		fmt.Println("sending size")
-		httpClient.sendSize(len(data))
+		udpClient.sendSize(len(data))
 		fmt.Println("sending chuncks")
-		httpClient.sendChunk(data)
+		udpClient.sendChunk(data)
 	} else {
 		fmt.Println("request not supported.")
 	}
 }
 
-func (hc HTTPCleint) sendChunk(input []byte) {
+func (hc UDPClient) sendChunk(input []byte) {
 	// padding
 	var appendArray []byte
 	if len(input) > DataSize {
@@ -98,7 +121,7 @@ func (hc HTTPCleint) sendChunk(input []byte) {
 	
 	// sending parts in windows size
 	var wg sync.WaitGroup
-	wg.Add(httpClient.windowsSize)
+	wg.Add(udpClient.windowsSize)
 	for i := 0; i < hc.windowsSize; i++ {
 		go hc.sendThreadParts(packetsChannel, &wg)
 	}
@@ -106,27 +129,29 @@ func (hc HTTPCleint) sendChunk(input []byte) {
 
 	// end message to close the connection.
 	fmt.Println("sending end to server")
-	hc.syncSendUDP([]byte("end"), hc.specialMessage, hc.createConnection())
+	hc.syncSendUDP([]byte("end"), hc.specialMessage, hc.udpListen)
+	hc.udpListen.Close()
 	fmt.Println("finished sending")
 }
 
-func (hc HTTPCleint) partsQueue(input []byte, ch chan Packet, parts int) {
+func (hc UDPClient) partsQueue(input []byte, ch chan Packet, parts int) {
 	for i := 0; i < parts; i++ {
 		ch <- Packet{i, input[i * DataSize: (i + 1) * DataSize]}
 	}
 	close(ch)
 }
 
-func (hc HTTPCleint) sendThreadParts(ch chan Packet, wgThread *sync.WaitGroup) {
+func (hc UDPClient) sendThreadParts(ch chan Packet, wgThread *sync.WaitGroup) {
 	defer wgThread.Done()
-	conn := hc.createConnection()
+	conn := hc.createConnection(nil)
 	for packet := range ch {
 		hc.syncSendUDP(packet.data, packet.partNumber, conn)
 	}
+	conn.Close()
 	fmt.Println("send part finished")
 }
 
-func (hc HTTPCleint) asyncSendUDP(dataUdp []byte, part int, udpConn *net.UDPConn) {
+func (hc UDPClient) asyncSendUDP(dataUdp []byte, part int, udpConn *net.UDPConn) {
 	arr := make([]byte, PartSize)
 	binary.BigEndian.PutUint32(arr, uint32(part))
 	arr = append(arr, dataUdp...)
@@ -139,7 +164,7 @@ func (hc HTTPCleint) asyncSendUDP(dataUdp []byte, part int, udpConn *net.UDPConn
 	}
 }
 
-func (hc HTTPCleint) syncSendUDP(data []byte, part int, udpConn *net.UDPConn) {
+func (hc UDPClient) syncSendUDP(data []byte, part int, udpConn *net.UDPConn) {
 	hc.asyncSendUDP(data, part, udpConn)
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -147,7 +172,7 @@ func (hc HTTPCleint) syncSendUDP(data []byte, part int, udpConn *net.UDPConn) {
 	wg.Wait()
 }
 
-func (hc HTTPCleint) retrySendUDP(data []byte, part int, udpConn *net.UDPConn, wg *sync.WaitGroup) {
+func (hc UDPClient) retrySendUDP(data []byte, part int, udpConn *net.UDPConn, wg *sync.WaitGroup) {
 	buf := make([]byte, 10)
 	udpConn.SetReadDeadline(time.Now().Add(ReadTimeOut))
 	_, err := udpConn.Read(buf[0:])
@@ -160,12 +185,13 @@ func (hc HTTPCleint) retrySendUDP(data []byte, part int, udpConn *net.UDPConn, w
 	}
 }
 
-func (hc HTTPCleint) sendSize(size int) {
-	hc.syncSendUDP([]byte(strconv.Itoa(size)), hc.specialMessage, hc.createConnection())
+func (hc UDPClient) sendSize(size int) {
+	hc.syncSendUDP([]byte(strconv.Itoa(size)), hc.specialMessage, hc.createConnection(nil))
 }
 
-func (hc HTTPCleint) createConnection() *net.UDPConn {
-	connection, err := net.DialUDP("udp", nil, hc.udpAddr)
+func (hc UDPClient) createConnection(laddr *net.UDPAddr) *net.UDPConn {
+	connection, err := net.DialUDP("udp", laddr, hc.udpAddr)
 	myLib.CheckError(err)
+
 	return connection
 }
