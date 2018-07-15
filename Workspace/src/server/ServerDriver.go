@@ -22,6 +22,7 @@ func main() {
 	go serverClient.ReadUDP()
 	for client := range serverClient.Messages {
 		message := client.Message
+		// if ......
 		response := myLib.SendHTTPRequest(message)
 		host := client.ResponsePath.IP.String()
 		port := strconv.Itoa(client.ResponsePath.Port)

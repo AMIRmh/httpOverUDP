@@ -61,20 +61,23 @@ func InitServer(UDPPort, TCPPort string) {
 }
 
 func handleDNSQuery(res http.ResponseWriter, req *http.Request) {
+
 	body, err := ioutil.ReadAll(req.Body)
 	myLib.CheckError(err)
 	var raw map[string]interface{}
 	json.Unmarshal(body, &raw)
 	target := raw["target"].(string)
 	typeOfQuery := raw["type"].(string)
+	server := raw["server"].(string)
 
+	// if .....
 
 	if typeOfQuery == "CNAME" {
 		cname, err := net.LookupCNAME(target)
 		myLib.CheckError(err)
 		res.Write([]byte(cname))
 	} else if typeOfQuery == "DNS" {
-		ips, auth := queryDNS(target)
+		ips, auth := queryDNS(target, server)
 		resMap := map[string]string{"ips" : ips, "auth" : strconv.FormatBool(auth)}
 		result, err := json.Marshal(resMap)
 		myLib.CheckError(err)
@@ -82,15 +85,17 @@ func handleDNSQuery(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
-func queryDNS(target string) (string, bool){
+func queryDNS(target, server string) (string, bool){
 	m := new(dns.Msg)
 	m.SetQuestion(dns.Fqdn(target), dns.TypeA)
 
 	ips := ""
-	in, err := dns.Exchange(m, "8.8.8.8:53")
+	in, err := dns.Exchange(m, server + ":53")
 	myLib.CheckError(err)
 	for _, t := range in.Answer {
-		ips += t.(*dns.A).A.String() + ", "
+		//fmt.Println(t.(*dns.CNAME).Target)
+		//ips += t.(*dns.A).A.String() + ", "
+		fmt.Println()
 	}
 	return ips, in.Authoritative
 }
